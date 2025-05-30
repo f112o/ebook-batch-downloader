@@ -28,6 +28,11 @@ pip install flask requests beautifulsoup4
 
 ### 3. 启动服务
 
+直接启用下载脚本：
+```bash
+bash run_download.sh
+```
+启动网页服务：
 ```bash
 python app.py
 ```
@@ -41,8 +46,11 @@ python app.py
 ```
 ├── app.py              # Flask 后端主程序
 ├── get_books.py        # 电子书爬取与下载逻辑
+├── pars.py             # 命令行批量下载脚本（支持参数）
+├── run_download.sh     # Bash 批量下载示例脚本
 ├── templates/
 │   └── index.html      # 前端页面
+├── image.png           # 前端界面截图
 ├── README.md           # 项目说明
 ```
 
