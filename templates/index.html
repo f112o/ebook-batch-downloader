@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>电子书下载</title>
+    <style>
+        body {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            background: #fff;
+            max-width: 400px;
+            margin: 60px auto 0 auto;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            padding: 36px 32px 28px 32px;
+        }
+        h2 {
+            text-align: center;
+            color: #ff7e5f;
+            margin-bottom: 28px;
+            letter-spacing: 2px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 10px 12px;
+            border: 1.5px solid #fda085;
+            border-radius: 8px;
+            outline: none;
+            font-size: 16px;
+            transition: border 0.2s;
+            background: #fdf6f0;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border: 1.5px solid #ff7e5f;
+            background: #fff8f3;
+        }
+        button {
+            background: linear-gradient(90deg, #ff7e5f 0%, #feb47b 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(255, 126, 95, 0.15);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #feb47b 0%, #ff7e5f 100%);
+            box-shadow: 0 4px 16px rgba(255, 126, 95, 0.22);
+        }
+        #result {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 16px;
+            color: #ff7e5f;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>电子书下载</h2>
+        <form id="downloadForm">
+            <label for="key_words">书名：</label>
+            <input type="text" id="key_words" required placeholder="请输入书名">
+            <label for="numbers">数量：</label>
+            <input type="number" id="numbers" value="1" min="1" max="10">
+            <button type="submit">获取并下载</button>
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('downloadForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const key_words = document.getElementById('key_words').value;
+            const numbers = document.getElementById('numbers').value;
+            document.getElementById('result').innerText = '正在获取下载链接...';
+            const res = await fetch('/get_links', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({key_words, numbers})
+            });
+            const data = await res.json();
+            if (data.links && data.links.length > 0) {
+                data.links.forEach(link => {
+                    // 自动触发下载
+                    const a = document.createElement('a');
+                    a.href = `/download_file?url=${encodeURIComponent(link.url)}&name=${encodeURIComponent(link.name)}&referer=${encodeURIComponent(link.referer)}`;
+                    a.download = link.name + '.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+                document.getElementById('result').innerText = '正在下载...';
+            } else {
+                document.getElementById('result').innerText = '未找到可用PDF下载链接';
+            }
+        }
+    </script>
+</body>
+</html>
